@@ -1,0 +1,38 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.E5_COMMIT_TOKEN }}
+    - name: Setup Python
+      uses: actions/setup-python@v3.1.4
+      with:
+        python-version: 3.11.3
+    - name: Install Requirements
+      run: pip install -r ./requirements.txt
+    - name: Run Python Script
+      run: python ./cron.py
+    - name: Config Email
+      run: git config --local user.email "${{ secrets.EMAIL }}"
+    - name: Config User Name
+      run: git config --local user.name "${{ secrets.USERNAME }}"
+    - name: Track Files
+      run: git add *
+    - name: Track Action YAML
+      run: git add .github/workflows/commit.yml
+    - name: '[DEBUG] Status'
+      run: git status
+    - name: Commit Files
+      run: git commit -m "${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt}}"
+    - name: Push Changes
+      run: git push origin master -f
+name: Commit
+'on':
+  schedule:
+  - cron: 15 */4 * * *
+  watch:
+    types:
+    - started
+permissions:
+  contents: write
