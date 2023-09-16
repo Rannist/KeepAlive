@@ -9,28 +9,23 @@ jobs:
       uses: actions/setup-python@v3.1.4
       with:
         python-version: 3.11.3
-    - name: Install Requirements
-      run: pip install -r ./requirements.txt
-    - name: Run Python Script
-      run: python ./cron.py
-    - name: Config Email
-      run: git config --local user.email "${{ secrets.EMAIL }}"
-    - name: Config User Name
-      run: git config --local user.name "${{ secrets.USERNAME }}"
-    - name: Track Files
-      run: git add *
-    - name: Track Action YAML
-      run: git add .github/workflows/commit.yml
-    - name: '[DEBUG] Status'
-      run: git status
-    - name: Commit Files
-      run: git commit -m "${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt}}"
-    - name: Push Changes
-      run: git push origin master -f
+    - name: Config Git
+      run: |
+        git config --local user.email "${{ secrets.EMAIL }}"
+        git config --local user.name "${{ secrets.USERNAME }}"
+    - name: Run Work Bash
+      run: |
+        pip install -r ./requirements.txt
+        python ./cron.py
+        git add *
+        git status
+    - name: Try Committing
+      continue-on-error: true
+      run: if (( RANDOM % 2 )); then git commit -m "${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}"; git push origin master -f; else echo RANDOMLY SKIPPED; fi
 name: Commit
 'on':
   schedule:
-  - cron: 15 */4 * * *
+  - cron: 34 * * * *
   watch:
     types:
     - started
