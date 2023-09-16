@@ -1,4 +1,19 @@
-import yaml, random, uuid, os
+import yaml, random, uuid, os, datetime
+
+def is_prime_number(number: int) -> bool:
+  if number <= 1:
+    return False
+  for i in range(2, int(number / 2) + 1):
+    if (number % i) == 0:
+      return False
+  else:
+    return True
+
+# skip if day of month is a prime number
+day = int(datetime.datetime.now().strftime("%d"))
+if (is_prime_number(day)):
+  print("Skipped because day of month is a prime number.")
+  exit(0)
 
 # default action yaml path & test file path
 #yaml_path = ".github/workflows/commit.yml"
